@@ -22,25 +22,25 @@ contract LosLobos is ERC721ATradable, ReentrancyGuard {
     mapping(address => uint256) public whitelist;
 
     constructor(
-        uint256 maxBatchSize_,
-        uint256 collectionSize_,
-        uint256 amountForAuctionAndDev_,
-        uint256 amountForDevs_,
+        uint256 _maxBatchSize,
+        uint256 _collectionSize,
+        uint256 _amountForAuctionAndDev,
+        uint256 _amountForDevs,
         address _proxyRegistryAddress
     )
         ERC721ATradable(
             "Meta Wolves",
             "MWF",
-            maxBatchSize_,
-            collectionSize_,
+            _maxBatchSize,
+            _collectionSize,
             _proxyRegistryAddress
         )
     {
-        maxMintPerTransaction = maxBatchSize_;
-        amountForAuctionAndDev = amountForAuctionAndDev_;
-        amountForDevs = amountForDevs_;
+        maxMintPerTransaction = _maxBatchSize;
+        amountForAuctionAndDev = _amountForAuctionAndDev;
+        amountForDevs = _amountForDevs;
         require(
-            amountForAuctionAndDev_ <= collectionSize_,
+            _amountForAuctionAndDev <= _collectionSize,
             "larger collection size needed"
         );
     }
@@ -111,11 +111,7 @@ contract LosLobos is ERC721ATradable, ReentrancyGuard {
         (AUCTION_START_PRICE - AUCTION_END_PRICE) /
             (AUCTION_PRICE_CURVE_LENGTH / AUCTION_DROP_INTERVAL);
 
-    function getAuctionPrice()
-        public
-        view
-        returns (uint256)
-    {
+    function getAuctionPrice() public view returns (uint256) {
         uint256 _saleStartTime = uint256(saleConfig.auctionSaleStartTime);
         if (block.timestamp < _saleStartTime) {
             return AUCTION_START_PRICE;
@@ -209,5 +205,16 @@ contract LosLobos is ERC721ATradable, ReentrancyGuard {
         returns (TokenOwnership memory)
     {
         return ownershipOf(tokenId);
+    }
+
+    function takeSnapshot(
+        uint256 from,
+        uint256 to
+    ) external view returns (address[] memory) {
+        address[] memory result = new address[](to - from);
+        for (uint256 i = from; i < to; i++) {
+            result[i - from] = ownerOf(i);
+        }
+        return result;
     }
 }

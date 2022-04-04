@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 import "./ERC721A.sol";
 import "./common/meta-transactions/ContentMixin.sol";
@@ -22,11 +23,7 @@ contract ProxyRegistry {
  * @title ERC721Tradable
  * ERC721Tradable - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
-abstract contract ERC721ATradable is
-    ERC721A,
-    ContextMixin,
-    Ownable
-{
+abstract contract ERC721ATradable is ERC721A, ContextMixin, Ownable, Pausable {
     using SafeMath for uint256;
 
     address proxyRegistryAddress;
@@ -64,5 +61,13 @@ abstract contract ERC721ATradable is
      */
     function _msgSender() internal view override returns (address sender) {
         return ContextMixin.msgSender();
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
 }
